@@ -40,7 +40,7 @@
 
                     return listOfValues;
                 },
-                sqlIdentifierListWithCommaCombinator = diesel.makeKleeneStarCombinator(buildSqlIdentifierListWithCommaCombinatorAbstractSyntaxTree, sqlIdentifierWithCommaCombinator),
+                sqlIdentifierListWithCommaCombinator = diesel.makeKleeneStarListCombinator(buildSqlIdentifierListWithCommaCombinatorAbstractSyntaxTree, sqlIdentifierWithCommaCombinator),
 
                 buildColumnNamesListCombinatorAbstractSyntaxTree = function (sqlIdentifierLiteralCombinatorResult, sqlIdentifierListWithCommaCombinatorResult) {
                     var counter,
@@ -86,7 +86,7 @@
 
                     return listOfValues;
                 },
-                sqlValueListWithCommaCombinator = diesel.makeKleeneStarCombinator(buildSqlValueListWithCommaCombinatorAbstractSyntaxTree, sqlValueWithCommaCombinator),
+                sqlValueListWithCommaCombinator = diesel.makeKleeneStarListCombinator(buildSqlValueListWithCommaCombinatorAbstractSyntaxTree, sqlValueWithCommaCombinator),
 
                 buildColumnValuesListCombinatorAbstractSyntaxTree = function (sqlValueCombinatorResult, sqlValueListWithCommaCombinatorResult) {
                     var counter,

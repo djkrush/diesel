@@ -223,7 +223,7 @@
     };
     diesel.makeOptionalCombinator = makeOptionalCombinator;
 
-    function makeKleeneStarCombinator(action, itemCombinator) {
+    function makeKleeneStarListCombinator(action, itemCombinator) {
         return function (inputCombinatorResult) {
             var intermediateResult = inputCombinatorResult,
                 intermediateResults = [],
@@ -250,9 +250,9 @@
             return alternativeCombinatorResult || inputCombinatorResult;
         };
     };
-    diesel.makeKleeneStarCombinator = makeKleeneStarCombinator;
+    diesel.makeKleeneStarListCombinator = makeKleeneStarListCombinator;
 
-    function makeKleenePlusCombinator(action, itemCombinator) {
+    function makeKleenePlusListCombinator(action, itemCombinator) {
         return function (inputCombinatorResult) {
             var intermediateResult = inputCombinatorResult,
                 intermediateResults = [],
@@ -279,7 +279,7 @@
             return alternativeCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, intermediateResult.errors);
         };
     };
-    diesel.makeKleenePlusCombinator = makeKleenePlusCombinator;
+    diesel.makeKleenePlusListCombinator = makeKleenePlusListCombinator;
 
     function makeParser(rootCombinator) {
         return {

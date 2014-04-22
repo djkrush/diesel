@@ -34,7 +34,7 @@
 
                     return listOfValues;
                 },
-                adjectiveListCombinator = diesel.makeKleeneStarCombinator(buildListCombinatorResult, adjectiveCombinator);
+                adjectiveListCombinator = diesel.makeKleeneStarListCombinator(buildListCombinatorResult, adjectiveCombinator);
                 nounCombinator = diesel.makeAlternativeCombinator(buildAlternativeCombinatorAbstractSyntaxTree, boyKeywordCombinator, girlKeywordCombinator),
 
                 buildSubjectCombinatorAbstractSyntaxTree = function (articleCombinatorResult, adjectiveListCombinatorResult, nounCombinatorResult) {
@@ -47,7 +47,7 @@
 
                 verbCombinator = diesel.makeAlternativeCombinator(buildAlternativeCombinatorAbstractSyntaxTree, jumpedKeywordCombinator, skippedKeywordCombinator),
 
-                adverbListCombinator = diesel.makeKleeneStarCombinator(buildListCombinatorResult, adverbLiteralCombinator),
+                adverbListCombinator = diesel.makeKleeneStarListCombinator(buildListCombinatorResult, adverbLiteralCombinator),
 
                 buildPredicateCombinatorAbstractSyntaxTree = function (preAdverbListCombinatorResult, verbCombinatorResult, postAdverbListCombinatorResult) {
                     var counter,
