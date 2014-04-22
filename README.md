@@ -1,4 +1,4 @@
-![alt text](https://github.com/djkrush/diesel/blob/master/logo.jpeg "Diesel")
+![alt text](https://github.com/djkrush/diesel/blob/master/diesel-logo.jpg "Diesel")
 
 diesel
 ========
