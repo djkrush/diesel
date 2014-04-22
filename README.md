@@ -1,4 +1,6 @@
-diesel
-======
+![alt text](https://github.com/djkrush/diesel/blob/master/logo.jpeg "Diesel")
 
-Diesel is a dsl library for JavaScript
+diesel
+========
+
+diesel is an open source dsl javascript library by Matt Brock

@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Diesel Examples</title>
+		<link rel="stylesheet" type="text/css" href="css/site.css" />
+		<link rel="stylesheet" type="text/css" href="css/codemirror.css" />
+		<link rel="stylesheet" type="text/css" href="css/editor.css" />
+	</head>
+	<body>
+		<div class="page">
+			<img class="logo" src="images/diesel-logo.jpg" alt="logo" />
+			<div class="clear"></div>
+			<div id="main">
+				Mode: <select id="dsl-editor-modes"></select>
+				<br />
+				<br />
+				Domain Specific Text
+				<br />
+				<br />
+				<textarea id="dsl-editor" cols="80" rows="10"></textarea>
+				<br />
+				<input id="parseButton" type="button" value="Start Truckin!" />
+				<br />
+				<br />	
+				<div id="errorOutputContainer" class="hide">
+					Errors
+					<pre id="errorOutputCanvas" class="dslOutput">&nbsp;</pre>
+				</div>
+				<div id="lexerOutputContainer" class="hide">
+					Tokens
+					<pre id="lexerOutputCanvas" class="dslOutput">&nbsp;</pre>
+				</div>
+				<br />
+				<div id="parserOutputContainer" class="hide">
+					Abstract Syntax Tree
+					<pre id="parserOutputCanvas" class="dslOutput">&nbsp;</pre>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="scripts/jquery-latest.js"></script>
+		<script type="text/javascript" src="scripts/codemirror/codemirror.js"></script>
+		<script type="text/javascript" src="scripts/diesel.js"></script>
+		<script type="text/javascript" src="scripts/dsl/sql/dsl.sql.tokens.js"></script>
+		<script type="text/javascript" src="scripts/dsl/sql/dsl.sql.language.js"></script>
+		<script type="text/javascript" src="scripts/dsl/sql/dsl.sql.editor.js"></script>
+		<script type="text/javascript" src="scripts/dsl/english/dsl.english.tokens.js"></script>
+		<script type="text/javascript" src="scripts/dsl/english/dsl.english.language.js"></script>
+		<script type="text/javascript" src="scripts/dsl/english/dsl.english.editor.js"></script>
+		<script type="text/javascript" src="scripts/example.js"></script>
+	</body>
+</html>

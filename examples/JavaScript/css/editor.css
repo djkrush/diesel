@@ -1,0 +1,16 @@
+.dsl-keyword {
+    color: #0000CC;
+	font-weight: bold;
+}
+
+.dsl-literal {
+    color: #008000;
+}
+
+.dsl-text {
+    color: #000000;
+}
+
+.dsl-error {
+    background: url(../images/error.png) repeat-x left bottom;
+}
