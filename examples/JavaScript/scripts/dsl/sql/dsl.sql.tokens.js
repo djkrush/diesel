@@ -30,7 +30,7 @@
                     expression: /^\bWhere\b/i
                 },
                 setKeyword: {
-                    name: 'SELECT',
+                    name: 'SET',
                     expression: /^\bSet\b/i
                 },
                 intoKeyword: {
