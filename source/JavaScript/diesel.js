@@ -8,6 +8,7 @@
             position: position
         };
     };
+    diesel.makeError = makeError;
 
     function makeToken(name, text, lineNumber, position) {
         return {
@@ -336,23 +337,32 @@
                     lexerResult,
                     parserResult;
 
-                lexerResult = lexer.tokenize(input);
+                try
+                {
+                    lexerResult = lexer.tokenize(input);
 
-                if (lexerResult.errors.length > 0) {
-                    result.errors = lexerResult.errors;
-                }
-                else {
-                    result.tokens = lexerResult.tokens;
-                    parserResult = parser.parse(result.tokens);
-
-                    if (parserResult.errors.length > 0) {
-                        result.errors = parserResult.errors;
+                    if (lexerResult.errors.length > 0) {
+                        result.errors = lexerResult.errors;
                     }
                     else {
-                        result.success = true;
-                        result.tree = parserResult.tree;
+                        result.tokens = lexerResult.tokens;
+                        parserResult = parser.parse(result.tokens);
+
+                        if (parserResult.errors.length > 0) {
+                            result.errors = parserResult.errors;
+                        }
+                        else {
+                            result.success = true;
+                            result.tree = parserResult.tree;
+                        }
                     }
                 }
+                catch(error)
+                {
+                    result.errors.push(error);
+                }
+
+
 
                 return result;
             }
