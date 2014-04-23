@@ -65,6 +65,10 @@
                     name: '.',
                     expression: /^\./
                 },
+                equalsOperatorKeyword: {
+                    name: '=',
+                    expression: /^\=/
+                },
                 sqlIdentifierLiteral: {
                     name: 'SQL Identifier',
                     expression: /^\[[^\]]+\]/
@@ -95,6 +99,7 @@
                 diesel.makeTableEntry(dictionary.openParenthesisKeyword.name, dictionary.openParenthesisKeyword.expression),
                 diesel.makeTableEntry(dictionary.closeParenthesisKeyword.name, dictionary.closeParenthesisKeyword.expression),
                 diesel.makeTableEntry(dictionary.periodKeyword.name, dictionary.periodKeyword.expression),
+                diesel.makeTableEntry(dictionary.equalsOperatorKeyword.name, dictionary.equalsOperatorKeyword.expression),
                 diesel.makeTableEntry(dictionary.commaKeyword.name, dictionary.commaKeyword.expression),
                 diesel.makeTableEntry(dictionary.sqlIdentifierLiteral.name, dictionary.sqlIdentifierLiteral.expression),
                 diesel.makeTableEntry(dictionary.sqlStringLiteral.name, dictionary.sqlStringLiteral.expression),

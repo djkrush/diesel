@@ -118,19 +118,96 @@
                 valuesKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.sql.tokens.dictionary.valuesKeyword.name, 'Values expected'),
 
                 buildInsertAbstractSyntaxTreeNode = function (insertKeywordCombinatorResult, intoKeywordCombinatorResult, sqlIdentifierLiteralCombinatorResult, openParenthesisKeywordCombinatorResult, columnNamesListCombinatorResult, closeParenthesisKeywordCombinatorResult, valuesKeywordCombinatorResult, openParenthesisKeywordCombinatorResult, valuesListCombinatorResult, closeParenthesisKeywordCombinatorResult) {
-                    return {
-                        type: 'Insert',
-                        value: {
+                    var value = {
+                            type: 'Insert',
                             table: sqlIdentifierLiteralCombinatorResult.value.value,
-                            columns: columnNamesListCombinatorResult.value,
-                            values: valuesListCombinatorResult.value
+                            changes: []
+                        },
+                        i;
+
+                    if (columnNamesListCombinatorResult.value.length !== valuesListCombinatorResult.value.length) {
+                        throw diesel.makeError('Insert must have equal number of columns and values');
+                    } else {
+                        for(i = 0; i < columnNamesListCombinatorResult.value.length; i++) {
+                            value.changes.push({
+                                column: columnNamesListCombinatorResult.value[i],
+                                value: valuesListCombinatorResult.value[i]
+                            })
                         }
-                    };
+                    }
+
+                    return value;
                 },
                 insertCombinator = diesel.makeSequenceCombinator(buildInsertAbstractSyntaxTreeNode, insertKeywordCombinator, intoKeywordCombinator, sqlIdentifierLiteralCombinator, openParenthesisKeywordCombinator, columnNamesListCombinator, closeParenthesisKeywordCombinator, valuesKeywordCombinator, openParenthesisKeywordCombinator, columnValuesListCombinator, closeParenthesisKeywordCombinator),
 
                 updateKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.sql.tokens.dictionary.updateKeyword.name, 'Update expected'),
                 setKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.sql.tokens.dictionary.setKeyword.name, 'Set expected'),
+                equalsOperatorKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.sql.tokens.dictionary.equalsOperatorKeyword.name, 'Equals operator expected'),
+
+                buildSqlColumnValuePairCombinatorAbstractSyntaxTree = function (sqlIdentifierLiteralCombinatorResult, equalsOperatorKeywordCombinatorResult, sqlValueCombinatorResult) {
+                    return {
+                        value: {
+                            column: sqlIdentifierLiteralCombinatorResult.value.value,
+                            value: sqlValueCombinatorResult.value.value
+                        }
+                    };
+                },
+                sqlColumnValuePairCombinator = diesel.makeSequenceCombinator(buildSqlColumnValuePairCombinatorAbstractSyntaxTree, sqlIdentifierLiteralCombinator, equalsOperatorKeywordCombinator, sqlValueCombinator),
+
+                buildSqlColumnValuePairWithCommaCombinatorAbstractSyntaxTree = function (sqlIdentifierWithCommaCombinatorResult, equalsOperatorKeywordCombinatorResult, sqlValueCombinatorResult) {
+                    return {
+                        value: {
+                            column: sqlIdentifierWithCommaCombinatorResult.value.value,
+                            value: sqlValueCombinatorResult.value.value
+                        }
+                    };
+                },
+                sqlColumnValuePairWithCommaCombinator = diesel.makeSequenceCombinator(buildSqlColumnValuePairWithCommaCombinatorAbstractSyntaxTree, sqlIdentifierWithCommaCombinator, equalsOperatorKeywordCombinator, sqlValueCombinator),
+
+                buildSqlColumnValuePairListWithCommaCombinatorAbstractSyntaxTree = function (listCombinatorResult) {
+                    var counter,
+                        value,
+                        listOfValues = [];
+
+                    for (counter = 0; counter < arguments.length; counter++) {
+                        value = arguments[counter].value.value;
+                        listOfValues.push(value);
+                    }
+
+                    return listOfValues;
+                },
+                sqlColumnValuePairListWithCommaCombinator = diesel.makeKleeneStarListCombinator(buildSqlColumnValuePairListWithCommaCombinatorAbstractSyntaxTree, sqlColumnValuePairWithCommaCombinator),
+
+                buildColumnValuePairListCombinatorAbstractSyntaxTree = function (sqlColumnValuePairCombinatorResult, sqlColumnValuePairListWithCommaCombinatorResult) {
+                    var counter,
+                        value,
+                        additionalValues = [],
+                        listOfValues = [];
+
+                    listOfValues.push(sqlColumnValuePairCombinatorResult.value.value);
+
+                    if (sqlColumnValuePairListWithCommaCombinatorResult !== undefined) {
+                        additionalValues = sqlColumnValuePairListWithCommaCombinatorResult.value;
+
+                        for (counter = 0; counter < additionalValues.length; counter++) {
+                            value = additionalValues[counter];
+
+                            listOfValues.push(value);
+                        }
+                    }
+
+                    return listOfValues;
+                },
+                columnValuePairListCombinator = diesel.makeSequenceCombinator(buildColumnValuePairListCombinatorAbstractSyntaxTree, sqlColumnValuePairCombinator, sqlColumnValuePairListWithCommaCombinator),
+
+                buildUpdateAbstractSyntaxTreeNode = function (updateKeywordCombinatorResult, tableSqlIdentifierLiteralCombinatorResult, setKeywordCombinatorResult, columnValuePairListCombinator) {
+                    return {
+                        type: 'Update',
+                        table: tableSqlIdentifierLiteralCombinatorResult.value.value,
+                        changes: columnValuePairListCombinator.value
+                    };
+                },
+                updateCombinator = diesel.makeSequenceCombinator(buildUpdateAbstractSyntaxTreeNode, updateKeywordCombinator, sqlIdentifierLiteralCombinator, setKeywordCombinator, columnValuePairListCombinator),
 
                 buildFromAbstractSyntaxTreeNode = function (fromKeywordCombinatorResult, sqlIdentifierLiteralCombinatorResult) {
                     var objectName = formatSqlIdentifierLiteral(sqlIdentifierLiteralCombinatorResult.value.value);
@@ -147,10 +224,8 @@
                 buildSelectAbstractSyntaxTreeNode = function (selectKeywordCombinatorResult, columnNamesListCombinatorResult, fromCombinatorResult) {
                     return {
                         type: 'Select',
-                        value: {
-                            table: fromCombinatorResult.value.value,
-                            columns: columnNamesListCombinatorResult.value
-                        }
+                        table: fromCombinatorResult.value.value,
+                        columns: columnNamesListCombinatorResult.value
                     };
                 },
                 selectCombinator = diesel.makeSequenceCombinator(buildSelectAbstractSyntaxTreeNode, selectKeywordCombinator, columnNamesListCombinator, fromCombinator),
@@ -158,7 +233,7 @@
                 buildSqlAbstractSyntaxTree = function (alternativeCombinatorResult) {
                 	return alternativeCombinatorResult.value;
                 },
-                rootCombinator = diesel.makeAlternativeCombinator(buildSqlAbstractSyntaxTree, selectCombinator, insertCombinator),
+                rootCombinator = diesel.makeAlternativeCombinator(buildSqlAbstractSyntaxTree, selectCombinator, insertCombinator, updateCombinator),
                 parser = diesel.makeParser(rootCombinator),
                 sqlLanguage = diesel.makeDsl(dsl.sql.tokens.lexer, parser);
 

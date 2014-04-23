@@ -13,7 +13,6 @@
                 periodKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.english.tokens.dictionary.periodKeyword.name, 'Punctuation expected'),
                 exclamationPointKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.english.tokens.dictionary.exclamationPointKeyword.name, 'Punctuation expected'),
                 questionMarkKeywordCombinator = diesel.makeTerminalSymbolCombinator(dsl.english.tokens.dictionary.questionMarkKeyword.name, 'Punctuation expected'),
-                nameLiteralCombinator = diesel.makeTerminalSymbolCombinator(dsl.english.tokens.dictionary.nameLiteral.name, 'Name expected'),
 
                 buildAlternativeCombinatorAbstractSyntaxTree = function (alternativeCombinatorResult) {
                     return alternativeCombinatorResult.value;

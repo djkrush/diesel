@@ -52,10 +52,6 @@
                 questionMarkKeyword: {
                     name: '?',
                     expression: /^\?/
-                },
-                nameLiteral: {
-                    name: 'Name Literal',
-                    expression: /^(?:\w+)/i
                 }
             };
             tokens.dictionary = dictionary;
@@ -73,7 +69,6 @@
                 diesel.makeTableEntry(dictionary.periodKeyword.name, dictionary.periodKeyword.expression),
                 diesel.makeTableEntry(dictionary.exclamationPointKeyword.name, dictionary.exclamationPointKeyword.expression),
                 diesel.makeTableEntry(dictionary.exclamationPointKeyword.name, dictionary.questionMarkKeyword.expression),
-                diesel.makeTableEntry(dictionary.nameLiteral.name, dictionary.nameLiteral.expression),
                 diesel.makeTabTableEntry(),
                 diesel.makeNewLineTableEntry()
             ];

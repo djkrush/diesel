@@ -110,12 +110,13 @@
     };
     diesel.makeLexer = makeLexer;
 
-    function makeCombinatorResult(success, tokens, value, errors) {
+    function makeCombinatorResult(success, tokens, value, errors, matchDepth) {
         return {
             success: success || false,
             tokens: tokens || [],
             value: value || null,
-            errors: errors || []
+            errors: errors || [],
+            matchDepth: matchDepth || 0
         };
     };
 
@@ -125,7 +126,8 @@
                 currentToken,
                 remainingTokens,
                 inputTokenLength,
-                errors = [];
+                errors = [],
+                matchDepth = 0;
 
             if (inputCombinatorResult && inputCombinatorResult.tokens) {
                 inputTokenLength = inputCombinatorResult.tokens.length;
@@ -135,7 +137,8 @@
 
                     if (currentToken.name === tokenName) {
                         remainingTokens = inputTokenLength > 1 ? inputCombinatorResult.tokens.slice(1) : [];
-                        outputCombinatorResult = makeCombinatorResult(true, remainingTokens, {name: currentToken.name, value: currentToken.text});
+                        matchDepth = 1;
+                        outputCombinatorResult = makeCombinatorResult(true, remainingTokens, {name: currentToken.name, value: currentToken.text}, [], matchDepth);
                     }
                 }
             }
@@ -147,7 +150,7 @@
                 errors.push(makeError(errorMessage));
             }
 
-            return outputCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, errors);
+            return outputCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, errors, matchDepth);
         };
     };
     diesel.makeTerminalSymbolCombinator = makeTerminalSymbolCombinator;
@@ -161,11 +164,13 @@
                 actionResult,
                 sequenceCombinatorResult,
                 index,
-                len;
+                len,
+                matchDepth = 0;
 
             for (index = 0, len = args.length; index < len; index++) {
                 intermediateResult = args[index].call(this, intermediateResult);
-
+                matchDepth = matchDepth + intermediateResult.matchDepth;
+                
                 if (intermediateResult.success) {
                     intermediateResults.push(intermediateResult);
                 }
@@ -176,10 +181,10 @@
 
             if (intermediateResult.success) {
                 actionResult = action.apply(this, intermediateResults);
-                sequenceCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult);
+                sequenceCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult, [], matchDepth);
             }
 
-            return sequenceCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, intermediateResult.errors);
+            return sequenceCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, intermediateResult.errors, matchDepth);
         };
     };
     diesel.makeSequenceCombinator = makeSequenceCombinator;
@@ -193,23 +198,30 @@
                 actionResult,
                 alternativeCombinatorResult,
                 index,
-                len;
+                len,
+                matchDepth = 0,
+                mostSignificantMatchDepth = 0,
+                mostSignificantErrors = [];
 
             for (index = 0, len = args.length; index < len; index++) {
                 intermediateResult = args[index].call(this, intermediateResult);
+                matchDepth = intermediateResult.matchDepth;
 
                 if (intermediateResult.success) {
                     intermediateResults.push(intermediateResult);
                     break;
+                } else if (mostSignificantMatchDepth <= intermediateResult.matchDepth) {
+                    mostSignificantMatchDepth = intermediateResult.matchDepth;
+                    mostSignificantErrors = intermediateResult.errors;
                 }
             }
 
             if (intermediateResult.success) {
                 actionResult = action.apply(this, intermediateResults);
-                alternativeCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult);
+                alternativeCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult, [], matchDepth);
             }
 
-            return alternativeCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, intermediateResult.errors);
+            return alternativeCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, mostSignificantErrors);
         };
     };
     diesel.makeAlternativeCombinator = makeAlternativeCombinator;
@@ -228,13 +240,15 @@
             var intermediateResult = inputCombinatorResult,
                 intermediateResults = [],
                 actionResult,
-                alternativeCombinatorResult;
+                kleeneStarListCombinatorResult,
+                matchDepth = 0;
 
             while (true) {
                 intermediateResult = itemCombinator.call({}, intermediateResult);
-
+                
                 if (intermediateResult.success) {
                     intermediateResults.push(intermediateResult);
+                    matchDepth = matchDepth + intermediateResult.matchDepth; 
                 }
                 else {
                     intermediateResult = intermediateResults.length ? intermediateResults.slice(-1)[0] : inputCombinatorResult;
@@ -244,10 +258,10 @@
 
             if (intermediateResult.success) {
                 actionResult = action.apply(this, intermediateResults);
-                alternativeCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult);
+                kleeneStarListCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult, [], matchDepth);
             }
 
-            return alternativeCombinatorResult || inputCombinatorResult;
+            return kleeneStarListCombinatorResult || inputCombinatorResult;
         };
     };
     diesel.makeKleeneStarListCombinator = makeKleeneStarListCombinator;
@@ -257,15 +271,24 @@
             var intermediateResult = inputCombinatorResult,
                 intermediateResults = [],
                 actionResult,
-                alternativeCombinatorResult;
+                kleenePlusListCombinatorResult,
+                matchDepth = 0,
+                mostSignificantMatchDepth = 0,
+                mostSignificantErrors = [];
 
             while (true) {
                 intermediateResult = itemCombinator.call({ }, intermediateResult);
-
+                
                 if (intermediateResult.success) {
                     intermediateResults.push(intermediateResult);
+                    matchDepth = matchDepth + intermediateResult.matchDepth;                    
                 }
                 else {
+                    if (mostSignificantMatchDepth <= intermediateResult.matchDepth) {
+                        mostSignificantMatchDepth = intermediateResult.matchDepth;
+                        mostSignificantErrors = intermediateResult.errors;
+                    }
+
                     intermediateResult = intermediateResults.length ? intermediateResults.slice(-1)[0] : intermediateResult;
                     break;
                 }
@@ -273,10 +296,10 @@
 
             if (intermediateResult.success) {
                 actionResult = action.apply(this, intermediateResults);
-                alternativeCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult);
+                kleenePlusListCombinatorResult = makeCombinatorResult(true, intermediateResult.tokens, actionResult, [], matchDepth);
             }
 
-            return alternativeCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, intermediateResult.errors);
+            return kleenePlusListCombinatorResult || makeCombinatorResult(false, inputCombinatorResult.tokens, inputCombinatorResult.value, mostSignificantErrors, inputCombinatorResult.matchDepth);
         };
     };
     diesel.makeKleenePlusListCombinator = makeKleenePlusListCombinator;
