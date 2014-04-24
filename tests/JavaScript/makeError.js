@@ -29,4 +29,4 @@ vows.describe('When calling makeError').addBatch({
             assert.equal(topic.position, 69);
         }
     }
-}).run();
+}).export(module);
