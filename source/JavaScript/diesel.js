@@ -3,7 +3,7 @@
 
     function makeError(message, lineNumber, position) {
         return {
-            message: message,
+            message: message || 'An error occurred',
             lineNumber: lineNumber,
             position: position
         };
