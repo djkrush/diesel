@@ -4,13 +4,13 @@ var vows = require('vows'),
     expectedExpression = /^\bHello World\b/i;
 
 vows.describe('When calling makeTableEntry').addBatch({
-    'With parameters': {
+    'It should': {
         topic: function () { return diesel.makeTableEntry('TokenName', expectedExpression); },
 
-        'it sets the specified name': function (topic) {
+        'sets the name': function (topic) {
             assert.equal(topic.tokenName, 'TokenName');
         },
-        'it sets the specified expression': function (topic) {
+        'set the expression': function (topic) {
             assert.equal(topic.expression, expectedExpression);
         }
     }
